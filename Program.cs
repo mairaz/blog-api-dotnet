@@ -15,8 +15,14 @@ namespace Blog
             var _connection = new  SqlConnection(CONNECTION_STRING);
             _connection.Open();
 
+            /* createUser(); 
             ReadUsers(_connection);
-            /* createUser(); */
+            AddRoles(_connection);
+            ReadRoles(_connection);
+            ReadUsersWithRoles(_connection);
+            */
+            
+        
             _connection.Close();
         }
 
@@ -28,24 +34,38 @@ namespace Blog
             foreach (var user in users)
               Console.WriteLine(user.Name);
         }
-        public static void createUser()
+
+        public static void ReadRoles (SqlConnection _connection)
         {
-            var user = new User()
+            var repository = new Repository<Role>(_connection);
+            var roles = repository.Get();
+            foreach (var role in roles)
+                Console.WriteLine(role.Name);
+        }
+        
+        public static void AddRoles (SqlConnection _connection)
+        {
+            var repository = new Repository<Role>(_connection);
+            var newRole = new Role(){Name = "User", Slug = "user"};
+            repository.Create(newRole);
+      
+        }
+        
+
+        public static void ReadUsersWithRoles(SqlConnection _connection)
+        {
+            var repository = new UserRepository(_connection);
+            var users = repository.GetWithRoles();
+            foreach (var user in users)
             {
-                Bio = "'",
-                Email = "lost1@lost.com",
-                Image = "http://",
-                Name = "Srta Lost",
-                PasswordHash = "###",
-                Slug = "/qlq-coisa"
-            };
-            using (var connection = new SqlConnection(CONNECTION_STRING))
-            {
-                connection.Insert<User>(user);
-                Console.WriteLine(user.Bio);
+                foreach (var role in user.Roles)
+                {
+                    Console.WriteLine(role.Name);
+                }
             }
         }
-
+        
+        
 
     }
 }
